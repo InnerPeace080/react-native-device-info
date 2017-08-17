@@ -8,6 +8,7 @@
 
 #import "RNDeviceInfo.h"
 #import "DeviceUID.h"
+#import <LocalAuthentication/LocalAuthentication.h>
 
 @interface RNDeviceInfo()
 
@@ -81,6 +82,10 @@ RCT_EXPORT_MODULE()
                               @"iPhone8,1" :@"iPhone 6s",       //
                               @"iPhone8,2" :@"iPhone 6s Plus",  //
                               @"iPhone8,4" :@"iPhone SE",       //
+                              @"iPhone9,1" :@"iPhone 7",        // (model A1660 | CDMA)
+                              @"iPhone9,3" :@"iPhone 7",        // (model A1778 | Global)
+                              @"iPhone9,2" :@"iPhone 7 Plus",   // (model A1661 | CDMA)
+                              @"iPhone9,4" :@"iPhone 7 Plus",   // (model A1784 | Global)
                               @"iPad4,1"   :@"iPad Air",        // 5th Generation iPad (iPad Air) - Wifi
                               @"iPad4,2"   :@"iPad Air",        // 5th Generation iPad (iPad Air) - Cellular
                               @"iPad4,3"   :@"iPad Air",        // 5th Generation iPad (iPad Air)
@@ -148,29 +153,48 @@ RCT_EXPORT_MODULE()
   return currentTimeZone.name;
 }
 
+- (bool) isEmulator
+{
+  return [self.deviceName isEqual: @"Simulator"];
+}
+
+- (bool) isTablet
+{
+  return [[UIDevice currentDevice] userInterfaceIdiom] == UIUserInterfaceIdiomPad;
+}
+
 - (NSDictionary *)constantsToExport
 {
     UIDevice *currentDevice = [UIDevice currentDevice];
 
-    NSUUID *identifierForVendor = [currentDevice identifierForVendor];
     NSString *uniqueId = [DeviceUID uid];
 
     return @{
              @"systemName": currentDevice.systemName,
              @"systemVersion": currentDevice.systemVersion,
              @"model": self.deviceName,
+             @"brand": @"Apple",
              @"deviceId": self.deviceId,
              @"deviceName": currentDevice.name,
              @"deviceLocale": self.deviceLocale,
-             @"deviceCountry": self.deviceCountry,
+             @"deviceCountry": self.deviceCountry ?: [NSNull null],
              @"uniqueId": uniqueId,
              @"bundleId": [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleIdentifier"],
-             @"appVersion": [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"],
+             @"appVersion": [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleShortVersionString"] ?: [NSNull null],
              @"buildNumber": [[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleVersion"],
              @"systemManufacturer": @"Apple",
              @"userAgent": self.userAgent,
              @"timezone": self.timezone,
+             @"isEmulator": @(self.isEmulator),
+             @"isTablet": @(self.isTablet),
              };
+}
+
+RCT_EXPORT_METHOD(isPinOrFingerprintSet:(RCTResponseSenderBlock)callback)
+{
+    LAContext *context = [[LAContext alloc] init];
+    BOOL isPinOrFingerprintSet = ([context canEvaluatePolicy:LAPolicyDeviceOwnerAuthentication error:nil]);
+    callback(@[[NSNumber numberWithBool:isPinOrFingerprintSet]]);
 }
 
 @end

@@ -20,6 +20,9 @@ module.exports = {
   getModel: function () {
     return RNDeviceInfo.model;
   },
+  getBrand: function () {
+    return RNDeviceInfo.brand;
+  },
   getSystemName: function () {
     return RNDeviceInfo.systemName;
   },
@@ -73,4 +76,16 @@ module.exports = {
 
 
 
+  getTimezone: function() {
+    return RNDeviceInfo.timezone;
+  },
+  isEmulator: function() {
+    return RNDeviceInfo.isEmulator;
+  },
+  isTablet: function() {
+    return RNDeviceInfo.isTablet;
+  },
+  isPinOrFingerprintSet: function () {
+    return RNDeviceInfo.isPinOrFingerprintSet;
+  },
 };
