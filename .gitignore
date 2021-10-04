@@ -62,8 +62,10 @@ example.xcworkspace
 # Our RN59 example
 examplern59
 
-# generated files by bob
-lib/
+# generated files by bob (commit for use module from git)
+# lib/
+nodeEnv/
+
 
 # Visual Studio build artifacts
 windows/RNDeviceInfo/bin
